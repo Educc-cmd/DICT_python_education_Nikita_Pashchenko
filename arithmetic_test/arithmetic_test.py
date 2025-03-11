@@ -1,19 +1,12 @@
 import random
 
-
 def generate_question(level):
     if level == 1:
-        num1 = random.randint(2, 9)
-        num2 = random.randint(2, 9)
+        num1, num2 = random.randint(2, 9), random.randint(2, 9)
         operator = random.choice(['+', '-', '*'])
-        question = f"{num1} {operator} {num2}"
-        answer = eval(question)
-    else:
-        num = random.randint(11, 29)
-        question = f"{num}"
-        answer = num ** 2
-    return question, answer
-
+        return f"{num1} {operator} {num2}", eval(f"{num1} {operator} {num2}")
+    num = random.randint(11, 29)
+    return f"{num}", num ** 2
 
 def get_valid_input():
     while True:
@@ -22,43 +15,26 @@ def get_valid_input():
             return int(user_input)
         print("Incorrect format.")
 
-
-def main():
+def get_level():
     while True:
-        print("Which level do you want? Enter a number:")
-        print("1 - simple operations with numbers 2-9")
-        print("2 - integral squares of 11-29")
-        level_input = input("> ")
-        if level_input in ["1", "2"]:
-            level = int(level_input)
-            break
+        level = input("Which level do you want? Enter 1 or 2:\n1 - simple operations with numbers 2-9\n2 - integral squares of 11-29\n> ")
+        if level in ("1", "2"): return int(level)
         print("Incorrect format.")
 
-    correct_answers = 0
+def main():
+    level, correct_answers = get_level(), 0
     for _ in range(5):
         question, correct_answer = generate_question(level)
         print(question)
-        user_answer = get_valid_input()
-
-        if user_answer == correct_answer:
-            print("Right!")
-            correct_answers += 1
-        else:
-            print("Wrong!")
-
+        correct_answers += get_valid_input() == correct_answer
+        print("Right!" if get_valid_input() == correct_answer else "Wrong!")
+    
     print(f"Your mark is {correct_answers}/5.")
-    print("Would you like to save your result to the file? Enter yes or no.")
-    save_input = input("> ").strip().lower()
-
-    if save_input in ["yes", "y"]:
-        print("What is your name?")
-        name = input("> ")
-        level_desc = "simple operations with numbers 2-9" if level == 1 else "integral squares of 11-29"
-        result_text = f"{name}: {correct_answers}/5 in level {level} ({level_desc}).\n"
+    if input("Would you like to save your result to the file? Enter yes or no.\n> ").strip().lower() in ("yes", "y"):
+        name = input("What is your name?\n> ")
+        desc = "simple operations with numbers 2-9" if level == 1 else "integral squares of 11-29"
         with open("results.txt", "a") as file:
-            file.write(result_text)
+            file.write(f"{name}: {correct_answers}/5 in level {level} ({desc}).\n")
         print("The results are saved in \"results.txt\".")
 
-
-if __name__ == "__main__":
-    main()
+if __name__ 
