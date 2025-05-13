@@ -1,6 +1,7 @@
 import random
 import sqlite3
 
+# --- Налаштування бази даних ---
 conn = sqlite3.connect('card.s3db')
 cur = conn.cursor()
 cur.execute('''
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS card (
 ''')
 conn.commit()
 
+# --- Алгоритм Луна ---
 def luhn_checksum(number_without_checksum):
     digits = [int(d) for d in number_without_checksum]
     for i in range(0, len(digits), 2):
@@ -21,6 +23,7 @@ def luhn_checksum(number_without_checksum):
             digits[i] -= 9
     return (10 - sum(digits) % 10) % 10
 
+# --- Генерація картки ---
 def generate_card_number():
     iin = "400000"
     while True:
@@ -93,6 +96,8 @@ def main_menu():
             print("\nBye!")
             break
 
+# --- Запуск програми ---
 main_menu()
 
+# --- Закриваємо з'єднання після завершення ---
 conn.close()
