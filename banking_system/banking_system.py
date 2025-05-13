@@ -85,10 +85,13 @@ def do_transfer(card_number):
         print("Invalid card number format.")
         return
 
+    if not target.isdigit() or len(target) != 16:
+        print("Invalid card number format.")
+        return
+
     if not is_luhn_valid(target):
         print("Probably you made a mistake in the card number. Please try again!")
         return
-
 
     cur.execute("SELECT number FROM card WHERE number = ?", (target,))
     if not cur.fetchone():
