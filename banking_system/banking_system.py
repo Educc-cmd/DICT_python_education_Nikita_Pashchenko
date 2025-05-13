@@ -1,6 +1,17 @@
 import random
+import sqlite3
 
-accounts = {}
+conn = sqlite3.connect('card.s3db')
+cur = conn.cursor()
+cur.execute('''
+CREATE TABLE IF NOT EXISTS card (
+    id INTEGER PRIMARY KEY,
+    number TEXT,
+    pin TEXT,
+    balance INTEGER DEFAULT 0
+)
+''')
+conn.commit()
 
 def luhn_checksum(number_without_checksum):
     digits = [int(d) for d in number_without_checksum]
@@ -17,7 +28,9 @@ def generate_card_number():
         partial_number = iin + account_id
         checksum = luhn_checksum(partial_number)
         card_number = partial_number + str(checksum)
-        if card_number not in accounts:
+
+        cur.execute("SELECT number FROM card WHERE number = ?", (card_number,))
+        if not cur.fetchone():
             return card_number
 
 def generate_pin():
@@ -26,7 +39,10 @@ def generate_pin():
 def create_account():
     card_number = generate_card_number()
     pin = generate_pin()
-    accounts[card_number] = {"pin": pin, "balance": 0}
+
+    cur.execute("INSERT INTO card (number, pin) VALUES (?, ?)", (card_number, pin))
+    conn.commit()
+
     print("\nYour card has been created")
     print("Your card number:")
     print(card_number)
@@ -36,7 +52,10 @@ def create_account():
 def log_into_account():
     card_number = input("\nEnter your card number:\n> ")
     pin = input("Enter your PIN:\n> ")
-    if card_number in accounts and accounts[card_number]["pin"] == pin:
+
+    cur.execute("SELECT * FROM card WHERE number = ? AND pin = ?", (card_number, pin))
+    result = cur.fetchone()
+    if result:
         print("\nYou have successfully logged in!")
         account_menu(card_number)
     else:
@@ -48,8 +67,11 @@ def account_menu(card_number):
         print("2. Log out")
         print("0. Exit")
         choice = input("> ")
+
         if choice == "1":
-            print(f"\nBalance: {accounts[card_number]['balance']}")
+            cur.execute("SELECT balance FROM card WHERE number = ?", (card_number,))
+            balance = cur.fetchone()[0]
+            print(f"\nBalance: {balance}")
         elif choice == "2":
             print("\nYou have successfully logged out!")
             break
@@ -72,3 +94,5 @@ def main_menu():
             break
 
 main_menu()
+
+conn.close()
