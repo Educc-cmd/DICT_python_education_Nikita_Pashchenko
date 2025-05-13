@@ -2,15 +2,23 @@ import random
 
 accounts = {}
 
+def luhn_checksum(number_without_checksum):
+    digits = [int(d) for d in number_without_checksum]
+    for i in range(0, len(digits), 2):
+        digits[i] *= 2
+        if digits[i] > 9:
+            digits[i] -= 9
+    return (10 - sum(digits) % 10) % 10
+
 def generate_card_number():
     iin = "400000"
     while True:
-        account_identifier = str(random.randint(0, 999999999)).zfill(9)
-        card_number = iin + account_identifier
+        account_id = str(random.randint(0, 999999999)).zfill(9)
+        partial_number = iin + account_id
+        checksum = luhn_checksum(partial_number)
+        card_number = partial_number + str(checksum)
         if card_number not in accounts:
-            break
-    card_number += str(random.randint(0, 9))
-    return card_number
+            return card_number
 
 def generate_pin():
     return str(random.randint(0, 9999)).zfill(4)
